@@ -102,3 +102,26 @@ Use patient-level splits, a locked held-out test set, external validation, class
 
 ## Limitations
 This starter does not include data, pretrained weights, DICOM handling, external validation, calibration, or clinical workflow integration. It is for education and research only. The React frontend is a separate interface and requires a compatible prediction API for live model inference.
+
+
+## 7. Run with Docker Compose
+
+Install Docker Desktop (Windows/macOS) or Docker Engine with the Compose plugin (Linux). Train the model first so that `artifacts/best_model.pt` and `artifacts/classes.json` exist locally.
+
+```bash
+docker compose up --build
+```
+
+Then open:
+- React frontend: http://localhost:8080
+- API health: http://localhost:8000/health (API is internal in Compose; use the frontend's same-origin `/api` proxy, or publish port 8000 temporarily for local debugging).
+
+The Compose setup builds the React frontend with Nginx and a FastAPI inference service. Model artifacts are mounted read-only and are not baked into the images. The original Streamlit demo is optional:
+
+```bash
+docker compose --profile streamlit up --build
+```
+
+It will be available at http://localhost:8501.
+
+To stop the services, run `docker compose down`. The inference API returns HTTP 503 until the trained checkpoint and class list are present. Do not commit datasets, trained model files, or identifiable patient images to Git.
