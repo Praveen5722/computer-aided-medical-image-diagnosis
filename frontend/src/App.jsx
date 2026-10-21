@@ -34,7 +34,7 @@ function App() {
 
   async function analyze() {
     if (!file) { setError("Upload a medical image before starting analysis."); return; }
-    if (!API_URL) { setError("The prediction API is not configured yet. Set VITE_API_URL to your backend URL to enable real model inference."); return; }
+    
     setLoading(true); setError(""); setResult(null);
     try {
       const body = new FormData();
@@ -88,7 +88,7 @@ function App() {
         <section className="metric-grid" aria-label="Workspace summary">
           <div className="metric-card"><div className="metric-top"><span>Analysis pipeline</span><span className="metric-icon blue"><BrainCircuit size={17}/></span></div><div className="metric-value">Regularized CNN</div><div className="metric-foot"><span className="tiny-dot green-dot"/> Model integration ready</div></div>
           <div className="metric-card"><div className="metric-top"><span>Current session</span><span className="metric-icon purple"><ScanLine size={17}/></span></div><div className="metric-value">{file ? "1 image selected" : "No image yet"}</div><div className="metric-foot">Files stay in this browser until submitted</div></div>
-          <div className="metric-card"><div className="metric-top"><span>Prediction service</span><span className="metric-icon amber"><Activity size={17}/></span></div><div className="metric-value">{API_URL ? "Configured" : "Not connected"}</div><div className="metric-foot"><span className={`tiny-dot ${API_URL ? "green-dot" : "amber-dot"}`}/>{API_URL ? "API URL provided" : "Set VITE_API_URL to enable"}</div></div>
+          <div className="metric-card"><div className="metric-top"><span>Prediction service</span><span className="metric-icon amber"><Activity size={17}/></span></div><div className="metric-value">{API_URL ? "Configured" : "Relative API route"}</div><div className="metric-foot"><span className={`tiny-dot $green-dot`}/>{API_URL ? "API URL provided" : "Using same-origin /api route"}</div></div>
         </section>
 
         <div className="section-heading" id="analyze"><div><h2>Start an analysis</h2><p>Upload an image, choose the scan category, and send it to your model API.</p></div><span className="step-label"><span>01</span> INPUT</span></div>
