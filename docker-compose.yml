@@ -1,0 +1,44 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ""
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      ARTIFACTS_DIR: /app/artifacts
+      CORS_ORIGINS: http://localhost:8080
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    restart: unless-stopped
+
+  # Optional: preserve the repository's original Streamlit demo.
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["streamlit"]
+    ports:
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+    restart: unless-stopped
