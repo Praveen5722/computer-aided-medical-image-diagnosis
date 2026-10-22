@@ -18,18 +18,25 @@ if not CHECKPOINT.exists() or not CLASSES.exists():
     st.info("No trained model found. Prepare a dataset and run scripts/train.py first.")
     st.stop()
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-checkpoint = load_checkpoint(CHECKPOINT, device)
-classes = json.loads(CLASSES.read_text(encoding="utf-8"))
-model = RegularizedCNN(checkpoint["num_classes"], checkpoint["dropout"]).to(device)
-model.load_state_dict(checkpoint["model_state_dict"])
-model.eval()
-transform = build_transforms(checkpoint["image_size"])
+@st.cache_resource
+def load_model_bundle(checkpoint_path: str, classes_path: str):
+    """Load model weights once and reuse the model across Streamlit reruns."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint = load_checkpoint(Path(checkpoint_path), device)
+    classes = json.loads(Path(classes_path).read_text(encoding="utf-8"))
+    model = RegularizedCNN(checkpoint["num_classes"], checkpoint["dropout"]).to(device)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model.eval()
+    transform = build_transforms(checkpoint["image_size"])
+    return model, classes, transform, device
+
+
+model, classes, transform, device = load_model_bundle(str(CHECKPOINT), str(CLASSES))
 uploaded = st.file_uploader("Upload a medical image", type=["png", "jpg", "jpeg", "bmp", "tif", "tiff"])
 if uploaded:
     try:
         image = Image.open(uploaded).convert("RGB")
-        st.image(image, caption="Uploaded image", use_container_width=True)
+        st.image(image, caption="Uploaded image")
         with torch.inference_mode():
             probabilities = torch.softmax(model(transform(image).unsqueeze(0).to(device)), dim=1)[0].cpu()
         ranked = sorted(zip(classes, probabilities.tolist()), key=lambda item: item[1], reverse=True)
