@@ -71,6 +71,7 @@ function App() {
         <a className="nav-item active" href="#overview" onClick={() => setMobileNav(false)}><Layers3 size={18}/> Overview</a>
         <a className="nav-item" href="#analyze" onClick={() => setMobileNav(false)}><ScanLine size={18}/> Image analysis <span className="nav-dot"/></a>
         <a className="nav-item" href="#results" onClick={() => setMobileNav(false)}><FileText size={18}/> Reports</a>
+        <a className="nav-item" href="#history" onClick={() => setMobileNav(false)}><Clock3 size={18}/> Session history</a>
       </nav>
       <div className="workspace-label tools-label">RESEARCH TOOLS</div>
       <nav className="side-nav">
