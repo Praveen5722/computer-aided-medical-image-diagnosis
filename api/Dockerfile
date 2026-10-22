@@ -1,6 +1,5 @@
-# Reuse the official CPU PyTorch image so Docker does not compile/download PyTorch wheels.
-# torch 2.5.1 and its compatible torchvision are already installed in this base image.
-FROM pytorch/pytorch:2.5.1-cpu
+# Official prebuilt PyTorch image; avoids pip downloading PyTorch wheels during this build.
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
 WORKDIR /app
@@ -9,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY api/requirements.txt ./requirements.txt
-# PyTorch is already present; pip installs only the remaining API dependencies.
+# PyTorch and torchvision are preinstalled in the base image.
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY api/main.py ./main.py
